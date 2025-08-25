@@ -1,0 +1,169 @@
+-- Drop tables if they already exist
+DROP TABLE Issue;
+DROP TABLE Books;
+DROP TABLE Member;
+
+-- Create Member Table
+CREATE TABLE Member (
+    Member_Id NUMBER(5) PRIMARY KEY,
+    Member_Name VARCHAR2(30),
+    Member_Address VARCHAR2(50),
+    Acc_Open_Date DATE,
+    Membership_Type VARCHAR2(20),
+    Fees_Paid NUMBER(4),
+    Max_Books_Allowed NUMBER(2),
+    Penalty_Amount NUMBER(7,2)
+);
+
+-- Create Books Table
+CREATE TABLE Books (
+    Book_No NUMBER(6) PRIMARY KEY,
+    Book_Name VARCHAR2(30),
+    Author_Name VARCHAR2(30),
+    Cost NUMBER(7,2),
+    Category CHAR(10)
+);
+
+-- Create Issue Table
+CREATE TABLE Issue (
+    Lib_Issue_Id NUMBER(10) PRIMARY KEY,
+    Book_No NUMBER(6) REFERENCES Books(Book_No),
+    Member_Id NUMBER(5) REFERENCES Member(Member_Id),
+    Issue_Date DATE,
+    Return_Date DATE
+);
+
+-- Insert Members
+INSERT INTO Member VALUES (101, 'Rishi Kumar', 'Delhi', TO_DATE('12-01-2006','DD-MM-YYYY'),'Annual', 500, 5, 120.50);
+INSERT INTO Member VALUES (102, 'Gita Devi', 'Mumbai', TO_DATE('15-07-2006','DD-MM-YYYY'),'Lifetime', 2000, 10, 0);
+INSERT INTO Member VALUES (103, 'Arun Singh', 'Kolkata', TO_DATE('20-09-2005','DD-MM-YYYY'),'Half Yearly', 300, 3, 50);
+INSERT INTO Member VALUES (104, 'Rajiv Iyer', 'Chennai', TO_DATE('01-03-2006','DD-MM-YYYY'),'Quarterly', 200, 2, 250.75);
+INSERT INTO Member VALUES (105, 'Priyadarshni ', 'Chennai', TO_DATE('05-JUL-2006','DD-MM-YYYY'),'Quarterly', 900, 4, 300.75);
+
+
+-- Insert Books
+INSERT INTO Books VALUES (5001, 'SQL Fundamentals', 'Loni', 550, 'Database');
+INSERT INTO Books VALUES (5006, 'Java Programming', 'Loni', 900, 'Lang');
+INSERT INTO Books VALUES (5002, 'Advanced SQL', 'Mehta', 700, 'Database');
+INSERT INTO Books VALUES (5003, 'Modern Physics', 'Albert', 450, 'Science');
+INSERT INTO Books VALUES (5004, 'Fictional Tales', 'Kiran', 600, 'Fiction');
+INSERT INTO Books VALUES (5005, 'Management Basics', 'Sharma', 800, 'Management');
+INSERT INTO Books VALUES (5007, 'Magic Pen', 'Rakesh', 500, 'Tales');
+INSERT INTO Books VALUES (5008, 'Magic Pencil', 'Yugi', 700, 'Tales');
+
+-- Insert Issue Records
+INSERT INTO Issue VALUES (7001, 5001, 101, TO_DATE('01-07-2006','DD-MM-YYYY'), NULL);
+INSERT INTO Issue VALUES (7002, 5003, 102, TO_DATE('15-07-2006','DD-MM-YYYY'), TO_DATE('05-08-2006','DD-MM-YYYY'));
+INSERT INTO Issue VALUES (7003, 5002, 101, TO_DATE('10-06-2006','DD-MM-YYYY'), NULL);
+INSERT INTO Issue VALUES (7004, 5004, 103, TO_DATE('20-05-2006','DD-MM-YYYY'), TO_DATE('30-06-2006','DD-MM-YYYY'));
+INSERT INTO Issue VALUES (7005, 5005, 104, TO_DATE('25-06-2006','DD-MM-YYYY'), NULL);
+INSERT INTO Issue VALUES (7006, 5001, 102, TO_DATE('01-07-2006','DD-MM-YYYY'), NULL);
+
+SELECT * from member;
+SELECT * from books;
+select * from issue;
+
+--Qn.no 1
+select book_name from books WHERE author_name = 'Loni' AND cost <600;
+
+--Qn.no 2
+Select * from issue where return_date is NULL;
+
+--Qn.no 3
+Update issue set RETURN_DATE = TO_DATE('DEC-31-2006', 'MM-DD-YYYY') where RETURN_DATE is NULL and LIB_ISSUE_ID not in (7005, 7006);
+select * from issue;
+
+
+--Qn.no 4
+select * from issue where return_date - ISSUE_DATE > 30;
+
+--Qn.no 5
+select * from books where cost between 500 and 750 and category = 'Database';
+
+--Qn.no 6
+select * from books where category in ('Science', 'Database', 'Fiction', 'Management');
+
+--Qn.no 7
+select * from member;
+select * from member order by penalty_amount desc;
+
+
+--Qn.no 8
+select * from books;
+select * from books order by category asc, cost desc;
+
+--Qn.no 9
+select * from books where book_name like '%SQL%';
+
+--Qn.no 10
+select * from member where (Member_Name like 'R%' or member_name like 'G%') and member_name like '%i%';
+
+--Qn.no 11
+select * from books;
+select book_no, initcap(book_name) as BOOKY, upper(author_name), cost, category from books order by Author_name desc;
+
+--Qn.no 12
+SELECT Lib_Issue_Id,
+       TO_CHAR(Issue_Date,'Day, Month--DD--YYYY') AS Issue_Date,
+       TO_CHAR(Return_Date,'Day, Month--DD--YYYY') AS Return_Date
+FROM Issue WHERE Member_Id=101;
+
+--Qn.no 13
+SELECT Book_No, Book_Name,
+CASE 
+  WHEN Category='Database' THEN 'D'
+  WHEN Category='Science' THEN 'S'
+  WHEN Category='RDBMS' THEN 'R'
+  ELSE 'O'
+END AS Category_Short
+FROM Books;
+select * from books;
+--Qn.no 14
+SELECT * from member;
+select * from member where to_char(ACC_OPEN_DATE, 'YYYY') = '2006';
+
+--Qn.no 15
+select * from issue;
+select lib_issue_id, issue_date, return_date, (return_date - issue_date) as No_Days from issue;
+
+--Qn.no 16
+select * from member order by Acc_Open_Date asc;
+
+--Qn.no 17
+select count(book_no), member_id from issue group by member_id having member_id = 101;
+
+--Qn.no 18
+select sum(penalty_amount) as TOTAL from member;
+
+--Qn.no 19
+SELECT count(*) from member;
+
+--Qn.no 20
+SELECT count(*) from issue;
+
+--Qn.no 21
+select avg(fees_paid) as AVg from member;
+
+--Qn.no 22
+SELECT
+    Lib_Issue_Id,
+    Book_No,
+    Member_Id,
+    Issue_Date,
+    Return_Date,
+    round(MONTHS_BETWEEN(Return_Date, Issue_Date), 2) AS Months_Between
+FROM Issue
+WHERE Return_Date IS NOT NULL;
+
+
+--Qn.no 23
+select member_name, length(replace(member_name, ' ', '')) as LetterCount from member;
+
+
+--Qn.no 24
+select substr(replace(membership_type, ' ',''),0,5) as trimmed from member;
+select * from member;
+
+--Qn.no 25
+SELECT Lib_Issue_Id, LAST_DAY(Issue_Date) AS Last_Day 
+FROM Issue;
